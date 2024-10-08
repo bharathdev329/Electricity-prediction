@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electricity Price Prediction</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: #000; /* Changed to black */
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .prediction {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0; /* Initially hidden */
+            transform: translateY(20px); /* Start slightly lower */
+            animation: fadeInUp 0.5s forwards; /* Apply animation */
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1; /* Fully visible */
+                transform: translateY(0); /* Move to original position */
+            }
+        }
+
+        .btn-predict {
+            background-color: #28a745; /* Green color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-top: 20px; /* Add margin for spacing */
+            width: 100%; /* Make it full width */
+        }
+
+        .btn-predict:hover {
+            background-color: #218838; /* Darker green for hover */
+        }
+
+        .right-panel {
+            background-color: #000; /* Changed to black */
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px; /* Add margin for spacing */
+        }
+
+        .right-panel h2 {
+            margin-bottom: 20px;
+        }
+
+        .right-panel p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-card">
+            <h1>Electricity Price Prediction</h1>
+            <form action="/predict" method="post">
+                <!-- Date Inputs -->
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="Year">Year:</label>
+                        <select class="custom-select" id="Year" name="Year" required>
+                            <option value="" disabled selected>Select Year</option>
+                            {% for year in range(2020, 2031) %}
+                                <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="Month">Month:</label>
+                        <select class="custom-select" id="Month" name="Month" required>
+                            <option value="" disabled selected>Select Month</option>
+                            {% for month in range(1, 13) %}
+                                <option value="{{ month }}">{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="Day">Day:</label>
+                        <select class="custom-select" id="Day" name="Day" required>
+                            <option value="" disabled selected>Select Day</option>
+                            {% for day in range(1, 32) %}
+                                <option value="{{ day }}">{{ day }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Holiday Input -->
+                <div class="form-group">
+                    <label for="Holiday">Holiday:</label>
+                    <select class="custom-select" id="Holiday" name="Holiday">
+                        <option value="None">None</option>
+                        <option value="Christmas">Christmas</option>
+                        <option value="New Year">New Year's Day</option>
+                        <option value="St Stephen's Day">St Stephen's Day</option>
+                        <option value="Christmas Eve">Christmas Eve</option>
+                        <option value="St Patrick's Day">St Patrick's Day</option>
+                        <option value="Good Friday">Good Friday</option>
+                        <option value="Holy Saturday">Holy Saturday</option>
+                        <option value="Easter">Easter</option>
+                        <option value="Easter Monday">Easter Monday</option>
+                        <option value="May Day">May Day</option>
+                        <option value="June Bank Holiday">June Bank Holiday</option>
+                        <option value="August Bank Holiday">August Bank Holiday</option>
+                        <option value="October Bank Holiday">October Bank Holiday</option>
+                    </select>
+                </div>
+
+                <!-- Additional Inputs -->
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="ForecastWindProduction">Forecast Wind Production:</label>
+                        <input type="text" class="form-control" id="ForecastWindProduction" name="ForecastWindProduction" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="SystemLoadEA">System Load EA:</label>
+                        <input type="text" class="form-control" id="SystemLoadEA" name="SystemLoadEA" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="SMPEA">SMPEA:</label>
+                        <input type="text" class="form-control" id="SMPEA" name="SMPEA" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="ORKTemperature">ORK Temperature:</label>
+                        <input type="text" class="form-control" id="ORKTemperature" name="ORKTemperature" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="ORKWindspeed">ORK Windspeed:</label>
+                        <input type="text" class="form-control" id="ORKWindspeed" name="ORKWindspeed" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="CO2Intensity">CO2 Intensity:</label>
+                        <input type="text" class="form-control" id="CO2Intensity" name="CO2Intensity" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="ActualWindProduction">Actual Wind Production:</label>
+                        <input type="text" class="form-control" id="ActualWindProduction" name="ActualWindProduction" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="SystemLoadEP2">System Load EP2:</label>
+                        <input type="text" class="form-control" id="SystemLoadEP2" name="SystemLoadEP2" required>
+                    </div>
+                </div>
+
+                <!-- Predict button above the prediction area -->
+                <button type="submit" class="btn btn-predict">Predict</button>
+
+                <div class="right-panel">
+                    <h2>Prediction Result</h2>
+                    <div id="predictionContainer">
+                        {% if prediction_text %}
+                        <div class="prediction" id="prediction">{{ prediction_text }}</div>
+                        {% else %}
+                        <p>Enter the details to predict your electricity bill.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Trigger animation on prediction display
+        document.addEventListener('DOMContentLoaded', function() {
+            const predictionElement = document.getElementById('prediction');
+            if (predictionElement) {
+                // Add a timeout to allow for animation to play
+                setTimeout(() => {
+                    predictionElement.style.opacity = 1; // Set opacity to 1 to trigger CSS animation
+                }, 100); // Adjust the timeout if necessary
+            }
+        });
+    </script>
+</body>
+
+</html>
