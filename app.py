@@ -7,7 +7,7 @@ import datetime as dt
 app = Flask(__name__)
 
 # Load the trained model
-model = joblib.load('electricity trained.pkl')
+model = joblib.load('electricity_trained.pkl')
 
 # Function to collect date-related inputs based on user input
 def get_date_features(year, month, day):
